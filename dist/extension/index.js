@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const SpotifyWebApi = require("spotify-web-api-node");
 const spotifyScopes = ['user-read-currently-playing'];
 let updateInterval = 1000; // 1 second
+let failures = 0;
 module.exports = (nodecg) => {
     // Spotify CFG
     const clientId = nodecg.bundleConfig.clientId;
@@ -26,6 +27,7 @@ module.exports = (nodecg) => {
     // Log spotify user in
     nodecg.listenFor('login', (_data, cb) => {
         const authURL = spotifyApi.createAuthorizeURL(spotifyScopes, 'nodecg'); // The second parameter I don't think is needed
+        nodecg.log.info(spotifyScopes, authURL);
         if (connectedToSpotify) {
             return;
         }
@@ -88,34 +90,37 @@ module.exports = (nodecg) => {
     function fetchCurrentSong() {
         spotifyApi.getMyCurrentPlayingTrack({})
             .then((data) => {
-            if (!data.body || !data.body.item) {
-                return;
-            }
-            rawSongDataRep.value = data.body;
-            // No album art url if the file is local
-            // Will get the highest quality image
-            const albumArtURL = data.body.item.is_local ? '' : data.body.item.album.images[0].url;
-            // Artists are stored as an array of objects
-            const artistsArray = [];
-            data.body.item.artists.forEach((artist) => {
-                artistsArray.push(artist.name);
+                if (!data.body || !data.body.item) {
+                    return;
+                }
+                failures = 0;
+                rawSongDataRep.value = data.body;
+                // No album art url if the file is local
+                // Will get the highest quality image
+                const albumArtURL = data.body.item.is_local ? '' : data.body.item.album.images[0].url;
+                // Artists are stored as an array of objects
+                const artistsArray = [];
+                data.body.item.artists.forEach((artist) => {
+                    artistsArray.push(artist.name);
+                });
+                const artistString = artistsArray.join(', ');
+                currentSongRep.value = {
+                    name: data.body.item.name,
+                    artist: artistString || '',
+                    albumArt: albumArtURL,
+                    playing: data.body.is_playing,
+                };
+            }, (err) => {
+                if (err.statusCode === 429) {
+                    nodecg.log.warn(`Rate limit hit. Try again in ${err['Retry-After']}`, err);
+                    updateInterval = err['Retry-After'] * 1000;
+                }
+                else {
+                    nodecg.log.error('Updating song failed!', err);
+                    failures += 1;
+                    if (failures == 3) connectedToSpotify = false;
+                }
             });
-            const artistString = artistsArray.join(', ');
-            currentSongRep.value = {
-                name: data.body.item.name,
-                artist: artistString || '',
-                albumArt: albumArtURL,
-                playing: data.body.is_playing,
-            };
-        }, (err) => {
-            if (err.statusCode === 429) {
-                nodecg.log.warn(`Rate limit hit. Try again in ${err['Retry-After']}`, err);
-                updateInterval = err['Retry-After'] * 1000;
-            }
-            else {
-                nodecg.log.error('Updating song failed!', err);
-            }
-        });
     }
 };
 //# sourceMappingURL=index.js.map

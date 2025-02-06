@@ -1,11 +1,10 @@
 'use strict';
 // NodeCG
-import { NodeCG } from '../../../../types/server'
-import { ListenForCb } from '../../../../types/lib/nodecg-instance';
+import NodeCG = require('@nodecg/types');
 
 // Ours
 import SpotifyWebApi = require('spotify-web-api-node');
-import { CurrentSong } from '../types/schemas/currentSong';
+import { CurrentSong } from '../types/schemas';
 
 const spotifyScopes = ['user-read-currently-playing'];
 let updateInterval = 1000;	// 1 second
@@ -35,7 +34,7 @@ module.exports = (nodecg: NodeCG) => {
 	}
 
 	// Log spotify user in
-	nodecg.listenFor('login', (_data: unknown, cb: ListenForCb) => {
+	nodecg.listenFor('login', (_data: unknown, cb: NodeCG.ListenHandler) => {
 		const authURL = spotifyApi.createAuthorizeURL(spotifyScopes, 'nodecg'); // The second parameter I don't think is needed
 
 		if (connectedToSpotify) {
@@ -120,12 +119,13 @@ module.exports = (nodecg: NodeCG) => {
 	function fetchCurrentSong() {
 		spotifyApi.getMyCurrentPlayingTrack({})
 			.then((data) => {
+				nodecg.log.info(data);
 				if (!data.body || !data.body.item) {
 					return;
 				}
 
 				rawSongDataRep.value = data.body;
-				
+
 				// No album art url if the file is local
 				// Will get the highest quality image
 				const albumArtURL = data.body.item.is_local ? '' : data.body.item.album.images[0].url;

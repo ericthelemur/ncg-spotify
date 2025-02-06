@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
+	<meta charset="UTF-8">
 	<script type="module" src="../node_modules/@material/mwc-button/mwc-button.js"></script>
 	<style>
 		mwc-button {
@@ -16,7 +17,7 @@
 
 		#songPlaying {
 			display: table;
-    		margin: 0 auto 9px auto;
+			margin: 0 auto 9px auto;
 		}
 
 		#songInfo {
@@ -35,9 +36,11 @@
 
 		#albumArt {
 			width: 100px;
+			height: 100px;
 		}
 	</style>
 </head>
+
 <body>
 	<mwc-button raised id="logIn">Log in</mwc-button>
 	<mwc-button raised id="songUpdate">Force song update</mwc-button>
@@ -54,4 +57,5 @@
 
 	<script src="spotify-connector.js"></script>
 </body>
+
 </html>

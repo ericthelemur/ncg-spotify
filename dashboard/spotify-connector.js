@@ -18,6 +18,7 @@ if (spotifyCallback) {
 function getAuth() {
     console.log('Logging in');
     nodecg.sendMessage('login', (err, authURL) => {
+        console.log(err, authURL);
         if (err) {
             nodecg.log.warn(err.message);
             return;
