@@ -1,7 +1,7 @@
 {
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"type": "object",
-	"additionalProperties": false,
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
     "properties": {
         "name": {
             "type": "string",
@@ -18,7 +18,17 @@
         "playing": {
             "type": "boolean",
             "default": false
+        },
+        "connected": {
+            "type": "boolean",
+            "default": false
         }
     },
-    "required": ["name", "artist", "albumArt", "playing"]
+    "required": [
+        "name",
+        "artist",
+        "albumArt",
+        "playing",
+        "connected"
+    ]
 }

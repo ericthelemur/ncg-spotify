@@ -46,6 +46,8 @@ currentSongRep.on('change', newVal => {
     document.getElementById('songName').innerHTML = newVal.name;
     document.getElementById('songArtist').innerHTML = newVal.artist;
     document.getElementById('albumArt').src = newVal.albumArt;
+    logInBtn.innerText = newVal.connected ? "Refresh Log In" : "Log In";
+    document.getElementById('songInfo').hidden = !newVal.connected;
 });
 logInBtn.onclick = getAuth;
 songUpdateBtn.onclick = updateSong;
